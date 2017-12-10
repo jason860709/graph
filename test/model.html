@@ -1,30 +1,14 @@
 <html><head>
 <style>
-	body {
-	  font-family: Monospace;
-	  background-color: #000;
-	  color: #fff;
-	  margin: 0px;
-	  overflow: hidden;
-	}
+#info {
+  position: absolute;
+  top: 2%;
+  width: 100%;
+  padding: 10px;
+  text-align: left;
+  color: #ffff00
+}
 
-	#info {
-	  color: #fff;
-	  position: absolute;
-	  top: 10px;
-	  width: 100%;
-	  text-align: center;
-	  z-index: 100;
-	  display: block;
-	}
-
-	#info a,
-	.button {
-	  color: #f00;
-	  font-weight: bold;
-	  text-decoration: underline;
-	  cursor: pointer
-	}
 
 
 </style>
@@ -32,15 +16,12 @@
 
 <body> 
 	<div id="info">
-	  <a href="http://threejs.org" target="_blank">three.js</a> - OBJLoader + MTLLoader
-		<br> Scale-and-Place
-	</div>
+  Computer Graphics
+  <br> Homework 3
+</div>
 
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/84/three.min.js"></script>
-	<script src="https://threejs.org/examples/js/controls/OrbitControls.js">
-	</script>
-
-	<!--script src="https://rawgit.com/mrdoob/three.js/master/examples/js/loaders/DDSLoader.js"></script-->
+	<script src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
 	<script src="https://rawgit.com/mrdoob/three.js/master/examples/js/loaders/MTLLoader.js"></script>
 	<script src="https://rawgit.com/mrdoob/three.js/master/examples/js/loaders/OBJLoader.js"></script>
 
@@ -94,35 +75,43 @@ function init() {
   //THREE.Loader.Handlers.add(/\.dds$/i, new THREE.DDSLoader());
 
   var mtlLoader = new THREE.MTLLoader();
-	mtlLoader.setPath('strts/');
- 	mtlLoader.load('strts.mtl', function(materials) {
-	
-    materials.preload();
+mtlLoader.setPath('strts/');
+mtlLoader.load('strts.mtl', function(materials) {
+  materials.preload();
+  var objLoader = new THREE.OBJLoader();
+  objLoader.setMaterials(materials);
+  objLoader.setPath('strts/');
+  objLoader.load('strts.obj', function(object) {
 
-    var objLoader = new THREE.OBJLoader();
-    objLoader.setMaterials(materials);
-    objLoader.setPath('strts/');
-    objLoader.load('strts.obj', function(object) {
+    var theObject =  unitize (object, 20);
+    scene.add (theObject);
+  
+    scene.add (new THREE.BoxHelper (theObject));
+  }, onProgress, onError);
 
-			var theObject =  unitize (object, 20);
-			scene.add (theObject);
-							
-			//scene.add (new THREE.BoxHelper (theObject));
+});
 
-
-			//////// MATERIAL ADJUSTMENT for porsche ///////////////
-			// transparent window: double-side fix
-			object.traverse (
-				function(mesh) {
-					if (mesh instanceof THREE.Mesh) {
-						mesh.material.side = THREE.DoubleSide;
-					}
-				});
-
-
-    }, onProgress, onError);
-
-  });
+function unitize (object, targetSize) {  
+  
+  // find bounding box of 'object'
+  var box3 = new THREE.Box3();
+  box3.setFromObject (object);
+  var size = new THREE.Vector3();
+  size.subVectors (box3.max, box3.min);
+  var center = new THREE.Vector3();
+  center.addVectors(box3.max, box3.min).multiplyScalar (0.5);
+   
+  // uniform scaling according to objSize
+  var objSize = Math.max (size.x, size.y, size.z); 
+  var scaleSet = targetSize/objSize;
+  
+  var theObject =  new THREE.Object3D();
+  theObject.add (object);
+  object.scale.set (scaleSet, scaleSet, scaleSet);
+  object.position.set (-center.x*scaleSet, -center.y*scaleSet + size.y/2*scaleSet, -center.z*scaleSet);
+  
+  return theObject;
+}
 
   //
 
