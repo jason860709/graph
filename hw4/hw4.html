@@ -32,6 +32,7 @@ body {
 
 	
 <script>
+
 var camera, scene, renderer;
 var controls;
 var car;
@@ -40,6 +41,16 @@ var RC,C;
 var theta = 0.3;
 var  bar = [],barRadius = [];
 var keyboard = new KeyboardState();
+
+var speed, angle, vel;
+var pos = new THREE.Vector3();
+var clock;
+
+(function() {
+  Math.clamp = function(val,min,max){
+    return Math.min(Math.max(val,min),max);
+    
+  }})();
 
 init();
 animate();
@@ -55,6 +66,7 @@ function buildcar(){
 		objLoader.setPath('strts/');
 		objLoader.load('strts.obj', function(object) {
 			var theObject =  unitize (object, 20);
+			theObject.rotation.y = Math.PI/2
 			car.add(theObject);
 			scene.add (car);
 			
@@ -132,7 +144,8 @@ function buildtrash(){
 }
 
 function init() {
-
+  
+  clock = new THREE.Clock();
   container = document.createElement('div');
   document.body.appendChild(container);
 
@@ -157,7 +170,7 @@ function init() {
   // model
 	buildcar()
 	buildtrash();
-
+	car.rotation.y = Math.PI/2;
   //map
    var geometry = new THREE.Geometry();
     geometry.vertices.push (
@@ -205,6 +218,10 @@ function init() {
 	camera.position.z = 200;
 
   window.addEventListener('resize', onWindowResize, false);
+  
+	/////////////
+  speed = 5.0;
+  angle = 0.0;
 }
 
 
@@ -219,22 +236,33 @@ function onWindowResize() {
 
 }
 
-
 function animate() {
 	//MOVE
+	
+	var dt = clock.getDelta();
+
   if (keyboard.pressed("A")){
-	car.position.x -= 1;
+	angle += 0.05;
 	}
   else if (keyboard.pressed("D")){
-	car.position.x += 1;
+	angle -= 0.05;
 	}
   else if (keyboard.pressed("W")){
-	car.position.z -= 1;
+	speed += 1.0;
   }
   else if (keyboard.pressed("S")){
-	car.position.z += 1;
+	speed -= 0.5;
   }
   
+	speed = Math.clamp (speed, 0, 30.0);		
+	vel = new THREE.Vector3(speed,0,0);
+	
+	vel.applyAxisAngle (new THREE.Vector3(0,1,0), angle);
+	pos.add (vel.clone().multiplyScalar(dt));
+	
+	car.position.copy(pos);
+	car.rotation.y = angle;
+	
   controls.update();
   requestAnimationFrame(animate);
   keyboard.update();
