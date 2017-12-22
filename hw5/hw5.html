@@ -64,6 +64,8 @@ function buildlamp(){
 			var theObject =  unitize (object, 180);
 			theObject.rotation.y = Math.PI + -Math.PI/4;
 			theObject.position.set(50,210,60);
+			theObject.castShadow = true;
+			theObject.receiveShadow = true;
 			table.add(theObject);	
 			object.traverse (
 				function(mesh){
@@ -119,6 +121,8 @@ function buildchair(){
 			var theObject =  unitize (object, 350);
 			theObject.rotation.y = -Math.PI/2 + -Math.PI/12;
 			theObject.position.set(-75,0,-150);
+			theObject.castShadow = true;
+			theObject.receiveShadow = true;
 			chair.add(theObject);
 			scene.add (chair);
 			
@@ -199,6 +203,9 @@ function buildwall(){
 	 bs2.rotation.y = Math.PI;
 	 bs3.position.set (250,0,-250);
 	 bs3.rotation.y = -Math.PI / 2;
+	 bs.receiveShadow = true;
+	 bs2.receiveShadow = true;
+	 bs3.receiveShadow = true;
 	 wall.add (bs);
 	 wall.add (bs2);
 	 wall.add (bs3);
@@ -215,6 +222,8 @@ function buildtableUP(){
 	 );
 	 var cube = new THREE.Mesh( geometry, material );
 	 cube.position.set(-76,200,-1);
+	 cube.castShadow = true;
+	 cube.receiveShadow = true;
 	 table.add (cube);
 };
 
@@ -238,8 +247,10 @@ function buildtrash(){
 
 
 
-  for (var key in bar) {
-    table.add(bar[key]);
+  for (var key in bar) { 
+	bar[key].castShadow = true;
+    bar[key].receiveShadow = true;
+	table.add(bar[key]);
   }
 }
 
@@ -252,17 +263,23 @@ function buildcon(){
 	 var cube = new THREE.Mesh( geometry, material );
 	 cube.rotation.y = Math.PI/4;
 	 cube.position.set(-180,215,-50);
+	 cube.castShadow = true;
+     cube.receiveShadow = true;
 	 table.add (cube);
 };
 
 function buildbuttom(){
   button = new Button(new THREE.Color (0x12ffff), 'cyan');
+  button.obj.castShadow = true;
+  button.obj.receiveShadow = true;
   table.add(button.obj);
   pickables.push(button.obj);
   button.obj.position.set(-170,205,-60);
   button.obj.rotation.y = Math.PI/4;
   
   button2 = new Button(new THREE.Color (0xff12ff), 'purple');
+  button2.obj.castShadow = true;
+  button2.obj.receiveShadow = true;
   table.add(button2.obj);
   button2.obj.position.set(-190,205,-40);
   button2.obj.rotation.y = Math.PI/4;
